@@ -16,7 +16,7 @@ fn tokenize(s : &String) -> Vec<CString> {
    .collect::<Vec<CString>>()
 }
 
-fn execute<'a>(tokens : Vec<CString>) {
+fn execute(tokens : Vec<CString>) {
   match fork().unwrap() {
     ForkResult::Parent{child} => {
       waitpid(child, None).unwrap();
@@ -30,14 +30,18 @@ fn execute<'a>(tokens : Vec<CString>) {
 
 fn main() {
   let stdin = io::stdin();
+  let mut line = String::new();
+
   loop {
     print!("# ");
     stdout().flush().unwrap();
-    let lines = stdin.lock().lines().map(Result::unwrap);
 
-    for line in lines {
-      let tokens = tokenize(&line);
-      execute(tokens);
-    }
+    stdin.lock().read_line(&mut line).unwrap();
+
+    let tokens = tokenize(&line);
+
+    execute(tokens);
+
+    line.clear();
   }
 }
